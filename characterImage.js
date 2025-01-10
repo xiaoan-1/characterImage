@@ -41,11 +41,13 @@ export class wallpaper extends plugin {
                 }
             ]
         }),
-        // 语录文本API
+        // 语录文本API（来源自网络公共API）
         this.textUrls = [
             'https://api.lovelive.tools/api/SweetNothings',
             'https://api.uomg.com/api/rand.qinghua?format=text'
         ]
+        // 语录API索引
+        this.textIndex = 0
 
         // 图片API
         // this.baseUrl = "http://xiaoan.website:9999?"
@@ -80,26 +82,26 @@ export class wallpaper extends plugin {
     }
     
     // 获取语录文本
-    async fetchNextUrl(index = 0) {
-        if (index >= this.textUrls.length) {
+    async fetchNextUrl() {
+        if (this.textIndex >= this.textUrls.length) {
           // 所有请求都完成了
           console.log("请求完毕！");
           return null;
         }
         try {
-            let response = await fetch(this.textUrls[index]);
+            let response = await fetch(this.textUrls[this.textIndex]);
             if (!response.ok) {
                 // 如果响应不是成功的状态，则调用失败回调并继续请求下一个网址
-                console.log(`服务器响应失败<${response.status}>: ${this.textUrls[index]}`);
-                return await this.fetchNextUrl(index + 1);
+                console.log(`服务器响应失败<${response.status}>: ${this.textUrls[this.textIndex]}`);
+                return await this.fetchNextUrl(this.textIndex + 1);
             } else {
                 // 如果响应成功，则调用成功回调并停止进一步的请求
                 return await response.text();
             }
         } catch (error) {
             // 如果在请求过程中发生错误，则调用失败回调并继续请求下一个网址
-            console.log(`请求发生错误[${index}]: ${this.textUrls[index]}`);
-            return this.fetchNextUrl(index + 1);
+            console.log(`请求发生错误[${this.textIndex}]: ${this.textUrls[this.textIndex]}`);
+            return this.fetchNextUrl(this.textIndex + 1);
         }
     }
 
